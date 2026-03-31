@@ -1,0 +1,97 @@
+---
+interface Props {
+  title?: string;
+}
+const { title = "Ing.Techh — Tecnología al mejor precio" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style is:global>
+      :root {
+        --brand: #5172b0;
+        --brand-dark: #3a5490;
+        --brand-light: #7b97cc;
+        --brand-subtle: #eef2fb;
+        --text-primary: #1d1d1f;
+        --text-secondary: #6e6e73;
+        --text-tertiary: #aeaeb2;
+        --bg: #f5f5f7;
+        --bg-white: #ffffff;
+        --border: rgba(0, 0, 0, 0.08);
+        --nav-h: 52px;
+        --radius: 20px;
+        --radius-sm: 12px;
+        --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.12);
+      }
+
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      img { max-width: 100%; display: block; }
+      a { text-decoration: none; color: inherit; }
+
+      /* ── SCROLLBAR ── */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+      /* ── UTILITY ── */
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .badge-oferta {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 20px;
+        vertical-align: middle;
+        margin-left: 6px;
+      }
+
+      /* ── FADE-UP ANIMATION ── */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .fade-up {
+        opacity: 0;
+        animation: fadeUp 0.55s ease forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

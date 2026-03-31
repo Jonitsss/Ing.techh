@@ -1,0 +1,106 @@
+---
+import type { CategoryConfig } from "../data/products";
+
+interface Props { cat: CategoryConfig; }
+const { cat } = Astro.props;
+---
+
+<div class="hero-wrap"><a href="/categoria/smartphones" class="hero-band" style={`background:${cat.color}`}>
+  <div class="hero-band-inner">
+    <p class="hero-eyebrow">Ing.Techh</p>
+    <h1 class="hero-title">{cat.name}</h1>
+    <p class="hero-sub">{cat.tagline}</p>
+    <span class="hero-cta">
+      Ver productos
+      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+        <path fill-rule="evenodd" d="M7.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L11.586 10 7.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </span>
+  </div>
+  {cat.image && (
+    <div class="hero-band-img">
+      <img src={cat.image} alt={cat.name} />
+    </div>
+  )}
+</a>
+
+</div>
+<style>
+  .hero-wrap {
+    padding: 12px 12px 0;
+    background: var(--bg);
+  }
+
+  .hero-band {
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    min-height: 480px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: #1d1d1f;
+    padding: 64px 24px 0;
+    scroll-margin-top: var(--nav-h);
+    transition: filter 0.25s;
+  }
+
+  .hero-band:hover { filter: brightness(0.97); }
+
+  .hero-band-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--brand); margin-bottom: 10px;
+  }
+
+  .hero-title {
+    font-size: clamp(56px, 8vw, 96px);
+    font-weight: 800; letter-spacing: -4px; line-height: 1;
+    color: #1d1d1f; margin-bottom: 14px;
+  }
+
+  .hero-sub {
+    font-size: 16px; font-weight: 300; color: #555;
+    margin-bottom: 28px; line-height: 1.5;
+  }
+
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 11px 26px;
+    background: var(--brand); color: white;
+    border-radius: 980px; font-size: 14px; font-weight: 600;
+    margin-bottom: 36px;
+    transition: background 0.2s;
+  }
+
+  .hero-band:hover .hero-cta { background: var(--brand-dark); }
+
+  .hero-band-img {
+    width: 100%;
+    display: flex; justify-content: center; align-items: flex-end;
+    max-height: 280px;
+    overflow: hidden;
+  }
+
+  .hero-band-img img {
+    height: 280px; width: auto;
+    object-fit: contain; object-position: bottom;
+    filter: drop-shadow(0 16px 48px rgba(0,0,0,0.15));
+  }
+
+  @media (max-width: 600px) {
+    .hero-title { letter-spacing: -2px; }
+    .hero-band-img { max-height: 200px; }
+    .hero-band-img img { height: 200px; }
+  }
+</style>

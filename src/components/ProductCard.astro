@@ -1,0 +1,83 @@
+---
+import type { Product } from "../data/products";
+import { formatPrice } from "../data/products";
+
+interface Props { product: Product; }
+const { product } = Astro.props;
+
+const isOferta = product.tags.includes("OFERTA");
+const priceStr = formatPrice(product.price, product.currency);
+const waText = encodeURIComponent(`Hola! Me interesa: ${product.name}. ¿Está disponible?`);
+---
+
+<div class="product-card">
+  <a href={`/producto/${product.id}`} class="product-card-link">
+    <div class="product-img-wrap">
+      <div class="product-img-placeholder">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="26" y1="12" x2="38" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      {isOferta && <span class="card-badge-oferta">Oferta</span>}
+    </div>
+    <div class="product-body">
+      <p class="product-name">{product.name}</p>
+      <p class="product-price">{priceStr}</p>
+    </div>
+  </a>
+  <div class="product-footer">
+    <a href={`/producto/${product.id}`} class="btn-detail">Ver detalle</a>
+    <a href={`https://wa.me/5491100000000?text=${waText}`} class="btn-wa-card" target="_blank" rel="noopener" title="Consultar por WhatsApp">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.28 7.044L.786 23.214l4.284-1.374A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.019-1.378l-.36-.214-3.728 1.195 1.214-3.636-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    background: var(--bg-white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition), box-shadow var(--transition);
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .product-card-link { text-decoration: none; color: inherit; flex: 1; display: flex; flex-direction: column; }
+  .product-img-wrap {
+    background: #f5f5f7; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; position: relative; overflow: hidden;
+  }
+  .product-img-placeholder { width: 56px; height: 56px; color: #c7c7cc; }
+  .product-img-placeholder svg { width: 100%; height: 100%; }
+  .card-badge-oferta {
+    position: absolute; top: 10px; left: 10px;
+    background: #ef4444; color: white;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px;
+  }
+  .product-body { padding: 16px 18px 12px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .product-name { font-size: 13.5px; font-weight: 500; line-height: 1.4; color: var(--text-primary); }
+  .product-price { font-size: 15px; font-weight: 700; color: var(--brand); }
+  .product-footer { padding: 0 18px 18px; display: flex; gap: 8px; align-items: center; }
+  .btn-detail {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 9px 14px; background: var(--brand-subtle); color: var(--brand);
+    border-radius: 980px; font-size: 12.5px; font-weight: 600; text-decoration: none;
+    transition: background var(--transition);
+  }
+  .btn-detail:hover { background: #dde6f7; }
+  .btn-wa-card {
+    flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+    background: #25d366; color: white;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; transition: background var(--transition), transform var(--transition);
+  }
+  .btn-wa-card:hover { background: #1ebe5d; transform: scale(1.08); }
+</style>
