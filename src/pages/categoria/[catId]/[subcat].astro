@@ -5,7 +5,7 @@ import Footer from "../../../components/Footer.astro";
 import ProductCard from "../../../components/ProductCard.astro";
 import { categories, products } from "../../../data/products";
 
-// Convert subcategory name to a URL-safe slug
+// ⚠️ Debe estar ANTES de getStaticPaths para que lo pueda usar
 function toSlug(str: string) {
   return str
     .toLowerCase()
@@ -15,15 +15,30 @@ function toSlug(str: string) {
     .replace(/[íìï]/g, 'i')
     .replace(/[óòö]/g, 'o')
     .replace(/[úùü]/g, 'u')
+    .replace(/[ñ]/g, 'n')
     .replace(/[^a-z0-9-]/g, '');
 }
 
 export function getStaticPaths() {
+  // Re-definida acá también para evitar el ReferenceError en Astro
+  function toSlugLocal(str: string) {
+    return str
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[áàä]/g, 'a')
+      .replace(/[éèë]/g, 'e')
+      .replace(/[íìï]/g, 'i')
+      .replace(/[óòö]/g, 'o')
+      .replace(/[úùü]/g, 'u')
+      .replace(/[ñ]/g, 'n')
+      .replace(/[^a-z0-9-]/g, '');
+  }
+
   const paths: any[] = [];
   categories.forEach(cat => {
     cat.subcategories.forEach(sub => {
       paths.push({
-        params: { catId: cat.id, subcat: toSlug(sub) },
+        params: { catId: cat.id, subcat: toSlugLocal(sub) },
         props: { cat, subName: sub },
       });
     });

@@ -18,7 +18,6 @@ for (let i = 0; i < rest.length; i += 2) {
 <!-- GAMING — full width -->
 <a href={`/categoria/${gaming.id}`} class="band band-full" style={`background:${gaming.color}`}>
   <div class="band-inner">
-    <p class="band-eyebrow">Ing.Techh</p>
     <h2 class="band-title">{gaming.name}</h2>
     <p class="band-sub">{gaming.tagline}</p>
     <span class="band-cta">
@@ -41,7 +40,6 @@ for (let i = 0; i < rest.length; i += 2) {
     {pair.map(cat => (
       <a href={`/categoria/${cat.id}`} class="band band-half" style={`background:${cat.color}`}>
         <div class="band-inner">
-          <p class="band-eyebrow">Ing.Techh</p>
           <h2 class="band-title">{cat.name}</h2>
           <p class="band-sub">{cat.tagline}</p>
           <span class="band-cta">
@@ -91,15 +89,7 @@ for (let i = 0; i < rest.length; i += 2) {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 0 24px;
-  }
-
-  .band-eyebrow {
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase;
-    color: var(--brand);
-    padding-top: 52px;
-    margin-bottom: 10px;
+    padding: 52px 24px 0;
   }
 
   .band-title {
@@ -116,13 +106,13 @@ for (let i = 0; i < rest.length; i += 2) {
   .band-cta {
     display: inline-flex; align-items: center; gap: 7px;
     padding: 11px 24px;
-    background: #1d1d1f; color: white;
+    background: #0071e3; color: white;
     border-radius: 980px; font-size: 13.5px; font-weight: 600;
     margin-bottom: 36px;
     transition: background 0.2s;
   }
 
-  .band:hover .band-cta { background: #444; }
+  .band:hover .band-cta { background: #0077ed; }
 
   .band-img {
     width: 100%;
@@ -182,4 +172,14 @@ for (let i = 0; i < rest.length; i += 2) {
     .band-half { min-height: 340px; }
     .band-full { min-height: 380px; }
   }
+
+  @keyframes floatImg {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  .band-img img {
+    animation: floatImg 4s ease-in-out infinite;
+  }
+
 </style>

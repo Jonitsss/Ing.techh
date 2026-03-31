@@ -329,3 +329,13 @@ export function formatPrice(price: number | null, currency: string): string {
   if (currency === "USD") return `USD ${price.toLocaleString("es-AR")}`;
   return `$ ${price.toLocaleString("es-AR")}`;
 }
+
+export const subcategoryImages: Record<string, string> = {
+  "Nuevos": "/images/subcategories/nuevos.png",
+  "iPhone Bateria Original": "/images/subcategories/bateria-original.png",
+  "iPhone Usados Premium": "/images/subcategories/usados-premium.png",
+  "Otras Marcas Nuevo": "/images/subcategories/otras-marcas.png",
+  "Pequeños Electrodomesticos": "/images/subcategories/pequenos-electrodomesticos.png",
+  "Accesorios de Cocina": "/images/subcategories/accesorios-cocina.png",
+  "Salud y Bienestar": "/images/subcategories/salud-bienestar.png",
+};

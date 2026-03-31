@@ -7,7 +7,6 @@ const { cat } = Astro.props;
 
 <div class="hero-wrap"><a href="/categoria/smartphones" class="hero-band" style={`background:${cat.color}`}>
   <div class="hero-band-inner">
-    <p class="hero-eyebrow">Ing.Techh</p>
     <h1 class="hero-title">{cat.name}</h1>
     <p class="hero-sub">{cat.tagline}</p>
     <span class="hero-cta">
@@ -57,12 +56,6 @@ const { cat } = Astro.props;
     z-index: 1;
   }
 
-  .hero-eyebrow {
-    font-size: 12px; font-weight: 700;
-    letter-spacing: 2.5px; text-transform: uppercase;
-    color: var(--brand); margin-bottom: 10px;
-  }
-
   .hero-title {
     font-size: clamp(56px, 8vw, 96px);
     font-weight: 800; letter-spacing: -4px; line-height: 1;
@@ -77,13 +70,13 @@ const { cat } = Astro.props;
   .hero-cta {
     display: inline-flex; align-items: center; gap: 7px;
     padding: 11px 26px;
-    background: var(--brand); color: white;
+    background: #0071e3; color: white;
     border-radius: 980px; font-size: 14px; font-weight: 600;
     margin-bottom: 36px;
     transition: background 0.2s;
   }
 
-  .hero-band:hover .hero-cta { background: var(--brand-dark); }
+  .hero-band:hover .hero-cta { background: #0077ed; }
 
   .hero-band-img {
     width: 100%;
@@ -103,4 +96,14 @@ const { cat } = Astro.props;
     .hero-band-img { max-height: 200px; }
     .hero-band-img img { height: 200px; }
   }
+
+  @keyframes floatImg {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-12px); }
+  }
+
+  .hero-band-img img {
+    animation: floatImg 4s ease-in-out infinite;
+  }
+
 </style>
