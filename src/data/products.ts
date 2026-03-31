@@ -331,11 +331,11 @@ export function formatPrice(price: number | null, currency: string): string {
 }
 
 export const subcategoryImages: Record<string, string> = {
-  "Nuevos": "/images/subcategories/nuevos.png",
-  "iPhone Bateria Original": "/images/subcategories/bateria-original.png",
-  "iPhone Usados Premium": "/images/subcategories/usados-premium.png",
-  "Otras Marcas Nuevo": "/images/subcategories/otras-marcas.png",
-  "Pequeños Electrodomesticos": "/images/subcategories/pequenos-electrodomesticos.png",
-  "Accesorios de Cocina": "/images/subcategories/accesorios-cocina.png",
-  "Salud y Bienestar": "/images/subcategories/salud-bienestar.png",
+  "Nuevos": "/images/subcategories/nuevos.jpg",
+  "iPhone Bateria Original": "/images/subcategories/bateria-original.jpg",
+  "iPhone Usados Premium": "/images/subcategories/usados-premium.jpg",
+  "Otras Marcas Nuevo": "/images/subcategories/otras-marcas.jpg",
+  "Pequeños Electrodomesticos": "/images/subcategories/pequenos-electrodomesticos.jpg",
+  "Accesorios de Cocina": "/images/subcategories/accesorios-cocina.jpg",
+  "Salud y Bienestar": "/images/subcategories/salud-bienestar.jpg",
 };
