@@ -1,8 +1,13 @@
 ---
 interface Props {
   title?: string;
+  description?: string;
 }
-const { title = "Ing.Techh — Tecnología al mejor precio" } = Astro.props;
+const {
+  title = "Ing.Techh — Tecnología al mejor precio",
+  description = "Ing.Techh: iPhones nuevos y usados, Gaming, Hogar, Accesorios y más. Envíos a todo el país. Garantía en todos los productos. Zona sur GBA."
+} = Astro.props;
+const canonicalURL = Astro.url;
 ---
 
 <!doctype html>
@@ -10,13 +15,36 @@ const { title = "Ing.Techh — Tecnología al mejor precio" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO primario -->
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph (Facebook, WhatsApp) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/images/categories/iphone17pro.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="Ing.Techh" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.svg" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
     <style is:global>
       :root {
         --brand: #5172b0;
@@ -38,9 +66,7 @@ const { title = "Ing.Techh — Tecnología al mejor precio" } = Astro.props;
       }
 
       *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
       html { scroll-behavior: smooth; }
-
       body {
         font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
         background: var(--bg);
@@ -48,47 +74,23 @@ const { title = "Ing.Techh — Tecnología al mejor precio" } = Astro.props;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
       }
-
       img { max-width: 100%; display: block; }
       a { text-decoration: none; color: inherit; }
-
-      /* ── SCROLLBAR ── */
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-
-      /* ── UTILITY ── */
-      .container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-
+      .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
       .badge-oferta {
-        display: inline-block;
-        background: #ef4444;
-        color: white;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 2px 8px;
-        border-radius: 20px;
-        vertical-align: middle;
-        margin-left: 6px;
+        display: inline-block; background: #ef4444; color: white;
+        font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+        vertical-align: middle; margin-left: 6px;
       }
-
-      /* ── FADE-UP ANIMATION ── */
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(20px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-
-      .fade-up {
-        opacity: 0;
-        animation: fadeUp 0.55s ease forwards;
-      }
+      .fade-up { opacity: 0; animation: fadeUp 0.55s ease forwards; }
     </style>
   </head>
   <body>

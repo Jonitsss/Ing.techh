@@ -1,0 +1,60 @@
+---
+const items = [
+  { emoji: "🚚", title: "Envíos a todo Arg", sub: "Correo / OCA / Andreani" },
+  { emoji: "📍", title: "Punto de encuentro", sub: "Zona sur GBA" },
+  { emoji: "🛡️", title: "Garantía en todos", sub: "Revisás antes de pagar" },
+  { emoji: "💳", title: "Cuotas disponibles", sub: "3, 6, 9 y 12 cuotas" },
+];
+---
+
+<section class="trust-bar">
+  {items.map(item => (
+    <div class="trust-item">
+      <span class="trust-emoji">{item.emoji}</span>
+      <p class="trust-title">{item.title}</p>
+      <p class="trust-sub">{item.sub}</p>
+    </div>
+  ))}
+</section>
+
+<style>
+  .trust-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #ffffff;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 20px;
+    border-right: 1px solid #f0f0f0;
+    transition: background 0.2s;
+  }
+
+  .trust-item:last-child { border-right: none; }
+  .trust-item:hover { background: #f9f9fb; }
+
+  .trust-emoji { font-size: 32px; margin-bottom: 12px; }
+
+  .trust-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+  }
+
+  .trust-sub {
+    font-size: 12.5px;
+    color: #6e6e73;
+  }
+
+  @media (max-width: 600px) {
+    .trust-bar { grid-template-columns: repeat(2, 1fr); }
+    .trust-item:nth-child(2) { border-right: none; }
+    .trust-item { padding: 28px 16px; }
+  }
+</style>

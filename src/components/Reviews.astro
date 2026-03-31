@@ -1,0 +1,173 @@
+---
+const reviews = [
+  { name: "Adriana G.", time: "hace 5 días", stars: 5, text: "Todo perfecto y de muy buena calidad, coincide con la descripción. Muy buena atención por WhatsApp, respondieron rápido.", product: "iPhone 14 128GB", initial: "A", color: "#5172b0" },
+  { name: "Ester Z.", time: "hace 1 semana", stars: 5, text: "Es hermoso ❤️ es justo lo que esperaba. La atención fue excelente, me explicaron todo. Lo recomiendo sin dudas a todos.", product: "iPhone 13 128GB Rosa", initial: "E", color: "#10b981" },
+  { name: "Carlos M.", time: "hace 2 semanas", stars: 5, text: "De las mejores compras que hice. Muy buen material, todo funciona perfecto. El precio fue muy conveniente comparado con otros.", product: "Galaxy S26 Ultra 512GB", initial: "C", color: "#3b82f6" },
+  { name: "Roberto F.", time: "hace 3 semanas", stars: 5, text: "Compré el iPhone 16 Pro y llegó como nuevo sellado, con cargador. Muy conforme. La garantía me dio mucha tranquilidad.", product: "iPhone 16 Pro 256GB", initial: "R", color: "#f59e0b" },
+  { name: "Valentina S.", time: "hace 1 mes", stars: 5, text: "Excelente servicio, llegó rápido y bien embalado. El producto es igual a las fotos. Volvería a comprar sin dudas.", product: "Smart Watch Serie 10", initial: "V", color: "#ec4899" },
+  { name: "Matías L.", time: "hace 1 mes", stars: 5, text: "Muy buena atención, me asesoraron perfecto para elegir el modelo. El iPhone llegó impecable, sellado. 100% recomendado.", product: "iPhone 15 Pro 128GB", initial: "M", color: "#8b5cf6" },
+  { name: "Lucía P.", time: "hace 6 semanas", stars: 5, text: "Compré una PS5 y quedé re contenta. La entrega fue rápida y el producto como nuevo. Super recomendable.", product: "PlayStation 5 Slim", initial: "L", color: "#ef4444" },
+  { name: "Diego H.", time: "hace 2 meses", stars: 5, text: "Muy buen precio y excelente calidad. Me contacté por WhatsApp y me respondieron al toque. Todo llegó perfecto.", product: "Freidora de Aire 6.5L", initial: "D", color: "#14b8a6" },
+];
+---
+
+<section class="reviews-section">
+  <div class="reviews-header">
+    <h2 class="reviews-title">Nuestros clientes nos aman</h2>
+    <div class="reviews-stars">
+      <span class="stars">★★★★★</span>
+      <span class="reviews-avg">5.0 estrellas basadas en <strong>988 reseñas</strong></span>
+    </div>
+  </div>
+
+  <!-- Track duplicated for infinite scroll -->
+  <div class="reviews-track-wrap">
+    <div class="reviews-track" id="reviews-track">
+      {[...reviews, ...reviews].map((r) => (
+        <div class="review-card">
+          <div class="review-top">
+            <div class="review-avatar" style={`background:${r.color}`}>{r.initial}</div>
+            <div>
+              <p class="review-name">{r.name} <span class="review-check">✓</span></p>
+              <p class="review-time">{r.time}</p>
+            </div>
+          </div>
+          <div class="review-stars">{"★".repeat(r.stars)}</div>
+          <p class="review-text">{r.text}</p>
+          <p class="review-product">Compró: <a href="#">{r.product}</a></p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .reviews-section {
+    background: #ffffff;
+    padding: 72px 0 64px;
+    overflow: hidden;
+  }
+
+  .reviews-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 24px;
+  }
+
+  .reviews-title {
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #1d1d1f;
+    margin-bottom: 12px;
+  }
+
+  .reviews-stars {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stars {
+    color: #f59e0b;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .reviews-avg {
+    font-size: 14px;
+    color: #6e6e73;
+  }
+
+  .reviews-avg strong { color: #1d1d1f; }
+
+  /* SCROLLING TRACK */
+  .reviews-track-wrap {
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  }
+
+  .reviews-track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    animation: scrollReviews 40s linear infinite;
+    padding: 12px 0;
+  }
+
+  .reviews-track:hover { animation-play-state: paused; }
+
+  @keyframes scrollReviews {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* CARD */
+  .review-card {
+    flex: 0 0 300px;
+    background: #f9f9fb;
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s;
+  }
+
+  .review-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  }
+
+  .review-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .review-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+
+  .review-name {
+    font-size: 14px; font-weight: 700; color: #1d1d1f;
+  }
+
+  .review-check { color: #10b981; font-size: 12px; }
+
+  .review-time {
+    font-size: 12px; color: #aeaeb2; margin-top: 2px;
+  }
+
+  .review-stars {
+    color: #f59e0b;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  .review-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #3d3d3f;
+    flex: 1;
+  }
+
+  .review-product {
+    font-size: 12px;
+    color: #aeaeb2;
+    margin-top: 4px;
+  }
+
+  .review-product a {
+    color: #0071e3;
+    text-decoration: underline;
+  }
+</style>
