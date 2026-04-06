@@ -2,49 +2,42 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
-import { products, categories, formatPrice } from "../../data/products";
+import { fetchProducts, getCatByName, formatPrice } from "../../data/sheets";
 
-export function getStaticPaths() {
-  return products.map(p => ({
-    params: { id: String(p.id) },
-    props: { product: p },
-  }));
-}
+const { id } = Astro.params;
+const allProducts = await fetchProducts();
+const product = allProducts.find(p => String(p.id) === id);
 
-const { product } = Astro.props;
-const cat = categories.find(c => c.name === product.category);
+if (!product) return Astro.redirect("/");
+
+const cat = getCatByName(product.category);
 const priceStr = formatPrice(product.price, product.currency);
 const isOferta = product.tags.includes("OFERTA");
-const waText = encodeURIComponent(`Hola! Me interesa el producto: ${product.name}. ¿Está disponible?`);
+const waText = encodeURIComponent(`Hola! Me interesa: ${product.name}. ¿Está disponible?`);
 
-// Related products (same subcat or same cat, excluding current)
-const related = products
+const related = allProducts
   .filter(p => p.id !== product.id && p.category === product.category)
   .slice(0, 4);
 ---
 
-<Layout title={`${product.name} — Ing.Techh`}>
+<Layout title={`${product.name} — Ing.Techh`} description={product.specs || `${product.name} en Ing.Techh`}>
   <Navbar />
   <main>
     <div class="container page-wrap">
-
-      <!-- BREADCRUMB -->
       <nav class="breadcrumb">
         <a href="/">Inicio</a><span>›</span>
         {cat && <><a href={`/categoria/${cat.id}`}>{product.category}</a><span>›</span></>}
         <span class="bc-current">{product.name}</span>
       </nav>
 
-      <!-- MAIN PRODUCT LAYOUT -->
       <div class="product-layout">
-
-        <!-- LEFT: IMAGE -->
+        <!-- IMAGE -->
         <div class="product-img-col">
-          <div class="product-img-box" style={cat ? `background:${cat.color}` : "background:#f5f5f7"}>
+          <div class="product-img-box" style="background:#ffffff">
             {product.image
               ? <img src={product.image} alt={product.name} class="product-img" />
               : <div class="product-img-placeholder">
-                  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
                     <rect x="20" y="10" width="40" height="60" rx="6" stroke="currentColor" stroke-width="2"/>
                     <circle cx="40" cy="60" r="4" stroke="currentColor" stroke-width="2"/>
                     <line x1="32" y1="16" x2="48" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -54,54 +47,42 @@ const related = products
           </div>
         </div>
 
-        <!-- RIGHT: INFO -->
+        <!-- INFO -->
         <div class="product-info-col">
-
-          <!-- BADGES -->
           <div class="product-badges">
-            {product.subcategory
-              ? <span class="badge badge-sub">{product.subcategory}</span>
-              : <span class="badge badge-sub">{product.category}</span>
-            }
+            <span class="badge badge-sub">{product.subcategory || product.category}</span>
             {isOferta && <span class="badge badge-oferta-lg">🔥 Oferta</span>}
             <span class="badge badge-garantia">✓ Garantía incluida</span>
           </div>
 
-          <!-- BRAND -->
           <p class="product-brand">{product.category}</p>
-
-          <!-- NAME -->
           <h1 class="product-name">{product.name}</h1>
 
-          <!-- PRICE -->
           <div class="product-price-block">
             <p class="product-price">{priceStr}</p>
             {product.currency === "USD" && (
               <p class="product-price-note">Precio en dólares · Consultá cotización del día</p>
             )}
             <p class="product-price-note">
-              <a href={`https://wa.me/5491100000000?text=${waText}`} class="cuotas-link" target="_blank" rel="noopener">
+              <a href={`https://wa.me/5491127101318?text=${waText}`} class="cuotas-link" target="_blank">
                 Cuotas disponibles · consultá medios de pago
               </a>
             </p>
           </div>
 
-          <!-- SPECS TABLE -->
           <div class="product-specs">
+            {product.estado && (
+              <div class="spec-row">
+                <span class="spec-label">Condición</span>
+                <span class="spec-value">{product.estado}</span>
+              </div>
+            )}
             {product.subcategory && (
               <div class="spec-row">
                 <span class="spec-label">Categoría</span>
                 <span class="spec-value">{product.subcategory}</span>
               </div>
             )}
-            <div class="spec-row">
-              <span class="spec-label">Condición</span>
-              <span class="spec-value">
-                {product.subcategory?.includes("Usado") ? "Usado — batería original" :
-                 product.subcategory?.includes("Bateria") ? "Usado — batería original" :
-                 "Nuevo sellado en caja"}
-              </span>
-            </div>
             {product.currency && (
               <div class="spec-row">
                 <span class="spec-label">Moneda</span>
@@ -110,43 +91,36 @@ const related = products
             )}
           </div>
 
-          <!-- CTA BUTTONS -->
+          {product.specs && (
+            <div class="product-specs-text">
+              <p class="specs-label">Características</p>
+              <p class="specs-content">{product.specs}</p>
+            </div>
+          )}
+
           <div class="product-ctas">
-            <a
-              href={`https://wa.me/5491100000000?text=${waText}`}
-              class="btn-wa"
-              target="_blank"
-              rel="noopener"
-            >
+            <a href={`https://wa.me/5491127101318?text=${waText}`} class="btn-wa" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.28 7.044L.786 23.214l4.284-1.374A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.019-1.378l-.36-.214-3.728 1.195 1.214-3.636-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
               </svg>
               Consultar por WhatsApp
             </a>
-            <a href="javascript:history.back()" class="btn-back">
-              ← Volver al catálogo
-            </a>
+            <a href="javascript:history.back()" class="btn-back">← Volver al catálogo</a>
           </div>
-
         </div>
       </div>
 
-      <!-- RELATED -->
       {related.length > 0 && (
         <div class="related-section">
           <h2 class="related-title">También te puede interesar</h2>
           <div class="related-grid">
             {related.map(p => (
               <a href={`/producto/${p.id}`} class="related-card">
-                <div class="related-img" style={cat ? `background:${cat.color}` : "background:#f5f5f7"}>
+                <div class="related-img" style="background:#ffffff">
                   {p.image
                     ? <img src={p.image} alt={p.name} />
-                    : <svg viewBox="0 0 64 64" fill="none" width="40" height="40">
-                        <rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/>
-                        <line x1="26" y1="12" x2="38" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
+                    : <svg viewBox="0 0 64 64" fill="none" width="40" height="40"><rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/></svg>
                   }
                 </div>
                 <div class="related-info">
@@ -158,7 +132,6 @@ const related = products
           </div>
         </div>
       )}
-
     </div>
   </main>
   <Footer />
@@ -166,192 +139,47 @@ const related = products
 
 <style>
   main { padding-top: var(--nav-h); }
-
   .page-wrap { padding: 36px 0 80px; }
-
-  /* BREADCRUMB */
-  .breadcrumb {
-    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
-    font-size: 12px; color: var(--text-secondary); margin-bottom: 36px;
-  }
+  .breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; color: #6e6e73; margin-bottom: 36px; }
   .breadcrumb a { color: inherit; text-decoration: none; }
-  .breadcrumb a:hover { color: var(--brand); text-decoration: underline; }
-  .bc-current { color: var(--text-tertiary); }
-
-  /* MAIN LAYOUT */
-  .product-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-    align-items: start;
-    margin-bottom: 80px;
-  }
-
-  /* IMAGE */
-  .product-img-box {
-    border-radius: var(--radius);
-    aspect-ratio: 1;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    padding: 48px;
-  }
-
-  .product-img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-  }
-
-  .product-img-placeholder {
-    color: rgba(0,0,0,0.2);
-    width: 80px; height: 80px;
-  }
-  .product-img-placeholder svg { width: 100%; height: 100%; }
-
-  /* BADGES */
-  .product-badges {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
-  }
-
-  .badge {
-    display: inline-flex; align-items: center;
-    padding: 4px 12px; border-radius: 980px;
-    font-size: 12px; font-weight: 600;
-  }
-
-  .badge-sub { background: var(--brand-subtle); color: var(--brand); }
+  .breadcrumb a:hover { color: #0071e3; }
+  .bc-current { color: #aeaeb2; }
+  .product-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; margin-bottom: 80px; }
+  .product-img-box { border-radius: 20px; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .product-img { width: 100%; height: 100%; object-fit: cover; }
+  .product-img-placeholder { color: rgba(0,0,0,0.2); }
+  .product-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 980px; font-size: 12px; font-weight: 600; }
+  .badge-sub { background: #eef2fb; color: #5172b0; }
   .badge-oferta-lg { background: #fee2e2; color: #dc2626; }
   .badge-garantia { background: #dcfce7; color: #15803d; }
-
-  /* BRAND */
-  .product-brand {
-    font-size: 13px; font-weight: 500; color: var(--text-secondary);
-    margin-bottom: 8px; letter-spacing: 0.3px;
-  }
-
-  /* NAME */
-  .product-name {
-    font-size: clamp(24px, 3vw, 36px);
-    font-weight: 800; letter-spacing: -1.5px; line-height: 1.15;
-    color: var(--text-primary); margin-bottom: 24px;
-    font-family: 'Courier New', Courier, monospace;
-  }
-
-  /* PRICE */
+  .product-brand { font-size: 13px; font-weight: 500; color: #6e6e73; margin-bottom: 8px; }
+  .product-name { font-size: clamp(22px, 3vw, 32px); font-weight: 800; letter-spacing: -1px; line-height: 1.2; color: #1d1d1f; margin-bottom: 24px; }
   .product-price-block { margin-bottom: 28px; }
-
-  .product-price {
-    font-size: 32px; font-weight: 800;
-    color: var(--brand); letter-spacing: -1px; margin-bottom: 6px;
-  }
-
-  .product-price-note { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
-  .cuotas-link { color: var(--brand); text-decoration: underline; }
-
-  /* SPECS */
-  .product-specs {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    margin-bottom: 32px;
-  }
-
-  .spec-row {
-    display: flex; align-items: center;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    gap: 16px;
-  }
-
+  .product-price { font-size: 32px; font-weight: 800; color: #0071e3; letter-spacing: -1px; margin-bottom: 6px; }
+  .product-price-note { font-size: 13px; color: #6e6e73; margin-top: 4px; }
+  .cuotas-link { color: #0071e3; text-decoration: underline; }
+  .product-specs { border: 1px solid #e5e5ea; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  .spec-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; gap: 16px; }
   .spec-row:last-child { border-bottom: none; }
-
-  .spec-label {
-    font-size: 13px; color: var(--text-secondary);
-    flex: 0 0 140px;
-  }
-
-  .spec-value {
-    font-size: 13px; font-weight: 500; color: var(--text-primary);
-    text-align: right; flex: 1;
-  }
-
-  /* CTA BUTTONS */
-  .product-ctas {
-    display: flex; flex-direction: column; gap: 12px;
-  }
-
-  .btn-wa {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 16px 24px;
-    background: #25d366;
-    color: white;
-    border-radius: var(--radius-sm);
-    font-size: 16px; font-weight: 700;
-    text-decoration: none;
-    transition: background var(--transition), transform var(--transition);
-  }
-
-  .btn-wa:hover { background: #1ebe5d; transform: scale(1.01); }
-
-  .btn-back {
-    display: block; text-align: center;
-    font-size: 14px; color: var(--brand);
-    text-decoration: none; padding: 8px;
-    transition: opacity var(--transition);
-  }
-
-  .btn-back:hover { opacity: 0.7; }
-
-  /* RELATED */
-  .related-section {
-    border-top: 1px solid var(--border);
-    padding-top: 48px;
-  }
-
-  .related-title {
-    font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
-    margin-bottom: 24px;
-  }
-
-  .related-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .related-card {
-    background: var(--bg-white);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--text-primary);
-    box-shadow: var(--shadow-card);
-    transition: transform var(--transition), box-shadow var(--transition);
-  }
-
-  .related-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
-
-  .related-img {
-    aspect-ratio: 1;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    color: rgba(0,0,0,0.2);
-  }
-
-  .related-img img { width: 100%; height: 100%; object-fit: contain; }
-
-  .related-info { padding: 14px 16px 16px; }
-
-  .related-name { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; }
-  .related-price { font-size: 14px; font-weight: 700; color: var(--brand); }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .product-layout { grid-template-columns: 1fr; gap: 32px; }
-    .related-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media (max-width: 480px) {
-    .related-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  }
+  .spec-label { font-size: 13px; color: #6e6e73; flex: 0 0 140px; }
+  .spec-value { font-size: 13px; font-weight: 500; text-align: right; flex: 1; }
+  .product-specs-text { margin-bottom: 24px; background: #f9f9fb; border-radius: 12px; padding: 16px 18px; }
+  .specs-label { font-size: 12px; font-weight: 700; color: #aeaeb2; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .specs-content { font-size: 13.5px; line-height: 1.6; color: #3d3d3f; }
+  .product-ctas { display: flex; flex-direction: column; gap: 12px; }
+  .btn-wa { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 24px; background: #25d366; color: white; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+  .btn-wa:hover { background: #1ebe5d; }
+  .btn-back { display: block; text-align: center; font-size: 14px; color: #0071e3; text-decoration: none; padding: 8px; }
+  .related-section { border-top: 1px solid #f0f0f0; padding-top: 48px; }
+  .related-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 24px; }
+  .related-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  .related-card { background: #fff; border-radius: 12px; overflow: hidden; text-decoration: none; color: #1d1d1f; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s; }
+  .related-card:hover { transform: translateY(-3px); }
+  .related-img { aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; padding: 16px; color: rgba(0,0,0,0.15); overflow: hidden; }
+  .related-img img { width: 100%; height: 100%; object-fit: cover; }
+  .related-info { padding: 12px 14px 14px; }
+  .related-name { font-size: 12.5px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
+  .related-price { font-size: 13px; font-weight: 700; color: #0071e3; }
+  @media (max-width: 900px) { .product-layout { grid-template-columns: 1fr; gap: 32px; } .related-grid { grid-template-columns: repeat(2,1fr); } }
 </style>

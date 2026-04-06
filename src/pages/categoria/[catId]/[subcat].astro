@@ -3,51 +3,18 @@ import Layout from "../../../layouts/Layout.astro";
 import Navbar from "../../../components/Navbar.astro";
 import Footer from "../../../components/Footer.astro";
 import ProductCard from "../../../components/ProductCard.astro";
-import { categories, products } from "../../../data/products";
+import { fetchProducts, getCatBySlug, toSlug } from "../../../data/sheets";
 
-// ⚠️ Debe estar ANTES de getStaticPaths para que lo pueda usar
-function toSlug(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[áàä]/g, 'a')
-    .replace(/[éèë]/g, 'e')
-    .replace(/[íìï]/g, 'i')
-    .replace(/[óòö]/g, 'o')
-    .replace(/[úùü]/g, 'u')
-    .replace(/[ñ]/g, 'n')
-    .replace(/[^a-z0-9-]/g, '');
-}
+const { catId, subcat } = Astro.params;
+const cat = getCatBySlug(catId!);
+if (!cat) return Astro.redirect("/");
 
-export function getStaticPaths() {
-  // Re-definida acá también para evitar el ReferenceError en Astro
-  function toSlugLocal(str: string) {
-    return str
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[áàä]/g, 'a')
-      .replace(/[éèë]/g, 'e')
-      .replace(/[íìï]/g, 'i')
-      .replace(/[óòö]/g, 'o')
-      .replace(/[úùü]/g, 'u')
-      .replace(/[ñ]/g, 'n')
-      .replace(/[^a-z0-9-]/g, '');
-  }
+// Find the real subcategory name from slug
+const subName = cat.subcategories.find(s => toSlug(s) === subcat);
+if (!subName) return Astro.redirect(`/categoria/${catId}`);
 
-  const paths: any[] = [];
-  categories.forEach(cat => {
-    cat.subcategories.forEach(sub => {
-      paths.push({
-        params: { catId: cat.id, subcat: toSlugLocal(sub) },
-        props: { cat, subName: sub },
-      });
-    });
-  });
-  return paths;
-}
-
-const { cat, subName } = Astro.props;
-const subProducts = products.filter(p => p.category === cat.name && p.subcategory === subName);
+const allProducts = await fetchProducts();
+const subProducts = allProducts.filter(p => p.category === cat.name && p.subcategory === subName);
 ---
 
 <Layout title={`${subName} — ${cat.name} — Ing.Techh`}>
@@ -64,7 +31,6 @@ const subProducts = products.filter(p => p.category === cat.name && p.subcategor
         <p class="sub-count">{subProducts.length} productos disponibles</p>
       </div>
     </div>
-
     <div class="container page-body">
       <div class="products-grid">
         {subProducts.map(p => <ProductCard product={p} />)}
@@ -76,32 +42,13 @@ const subProducts = products.filter(p => p.category === cat.name && p.subcategor
 
 <style>
   main { padding-top: var(--nav-h); }
-
   .sub-header { padding: 52px 0 44px; }
-
-  .breadcrumb {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; opacity: 0.6; margin-bottom: 20px;
-  }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.6; margin-bottom: 20px; }
   .breadcrumb a { text-decoration: none; color: inherit; }
-  .breadcrumb a:hover { opacity: 1; text-decoration: underline; }
-
-  .sub-title {
-    font-size: clamp(36px, 5vw, 56px);
-    font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 8px;
-  }
-
+  .breadcrumb a:hover { text-decoration: underline; }
+  .sub-title { font-size: clamp(36px, 5vw, 56px); font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
   .sub-count { font-size: 15px; font-weight: 300; opacity: 0.6; }
-
   .page-body { padding: 48px 0 80px; }
-
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-  }
-
-  @media (max-width: 600px) {
-    .products-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
-  }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  @media (max-width: 600px) { .products-grid { grid-template-columns: repeat(2,1fr); gap: 10px; } }
 </style>

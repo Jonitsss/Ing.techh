@@ -6,6 +6,7 @@ export interface Product {
   price: number | null;
   currency: string;
   tags: string[];
+  image?: string;
 }
 
 export const products: Product[] = [

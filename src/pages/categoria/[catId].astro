@@ -3,32 +3,22 @@ import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import ProductCard from "../../components/ProductCard.astro";
-import { categories, products, subcategoryImages } from "../../data/products";
+import { fetchProducts, getCategories, getCatBySlug, toSlug, SUBCAT_IMAGES } from "../../data/sheets";
 
-function toSlug(str: string) {
-  return str.toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[áàä]/g, 'a').replace(/[éèë]/g, 'e')
-    .replace(/[íìï]/g, 'i').replace(/[óòö]/g, 'o')
-    .replace(/[úùü]/g, 'u').replace(/[ñ]/g, 'n')
-    .replace(/[^a-z0-9-]/g, '');
-}
+const { catId } = Astro.params;
+const cat = getCatBySlug(catId!);
 
-export function getStaticPaths() {
-  return categories.map(cat => ({
-    params: { catId: cat.id },
-    props: { cat },
-  }));
-}
+if (!cat) return Astro.redirect("/");
 
-const { cat } = Astro.props;
-const catProducts = products.filter(p => p.category === cat.name);
+const allProducts = await fetchProducts();
+const catProducts = allProducts.filter(p => p.category === cat.name);
 const hasSubcats = cat.subcategories.length > 0;
 const rootProducts = catProducts.filter(p => !p.subcategory);
+
 const subcatData = cat.subcategories.map(sub => ({
   name: sub,
   slug: toSlug(sub),
-  image: subcategoryImages[sub] ?? null,
+  image: SUBCAT_IMAGES[sub] ?? null,
   count: catProducts.filter(p => p.subcategory === sub).length,
 }));
 ---
@@ -36,8 +26,6 @@ const subcatData = cat.subcategories.map(sub => ({
 <Layout title={`${cat.name} — Ing.Techh`}>
   <Navbar />
   <main>
-
-    <!-- HEADER BAND -->
     <div class="cat-header" style={`background:${cat.color}; color:${cat.textColor}`}>
       <div class="container">
         <nav class="breadcrumb">
@@ -57,36 +45,23 @@ const subcatData = cat.subcategories.map(sub => ({
       </div>
     </div>
 
-    <!-- SUBCATEGORY CARDS -->
     {hasSubcats && (
       <div class="subcat-section">
         <div class="container">
           <h2 class="section-title">Todas las categorías. <em>Elegí la tuya.</em></h2>
-
           <div class="carousel-outer">
-            <button class="carousel-arrow arrow-left" id="arrow-left" aria-label="Anterior">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
+            <button class="carousel-arrow arrow-left" id="arrow-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-
             <div class="carousel-viewport" id="carousel-viewport">
               <div class="carousel-track" id="carousel-track">
                 {subcatData.map((sub) => (
                   <a href={`/categoria/${cat.id}/${sub.slug}`} class="sc-card">
-                    <div class="sc-top">
-                      <h3 class="sc-name">{sub.name}</h3>
-                    </div>
+                    <div class="sc-top"><h3 class="sc-name">{sub.name}</h3></div>
                     <div class="sc-img-area">
                       {sub.image
                         ? <img src={sub.image} alt={sub.name} class="sc-img" />
-                        : <div class="sc-img-placeholder">
-                            <svg viewBox="0 0 64 64" fill="none" width="56" height="56">
-                              <rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
-                              <circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/>
-                              <line x1="26" y1="12" x2="38" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                          </div>
+                        : <div class="sc-img-placeholder"><svg viewBox="0 0 64 64" fill="none" width="56" height="56"><rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/></svg></div>
                       }
                     </div>
                     <div class="sc-bottom">
@@ -96,14 +71,10 @@ const subcatData = cat.subcategories.map(sub => ({
                 ))}
               </div>
             </div>
-
-            <button class="carousel-arrow arrow-right" id="arrow-right" aria-label="Siguiente">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
+            <button class="carousel-arrow arrow-right" id="arrow-right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
-
           <div class="carousel-dots" id="carousel-dots">
             {subcatData.map((_, i) => (
               <button class={`dot ${i === 0 ? 'active' : ''}`} data-i={i}></button>
@@ -113,7 +84,6 @@ const subcatData = cat.subcategories.map(sub => ({
       </div>
     )}
 
-    <!-- ROOT PRODUCTS -->
     {rootProducts.length > 0 && (
       <div class="container products-section">
         {hasSubcats && <h2 class="section-title">Otros productos</h2>}
@@ -129,140 +99,41 @@ const subcatData = cat.subcategories.map(sub => ({
 
 <style>
   main { padding-top: var(--nav-h); }
-
-  /* ── HEADER ── */
   .cat-header { padding: 52px 0 0; overflow: hidden; }
   .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.6; margin-bottom: 24px; }
   .breadcrumb a { text-decoration: none; color: inherit; }
-  .breadcrumb a:hover { text-decoration: underline; }
   .cat-header-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
   .cat-title { font-size: clamp(40px, 6vw, 68px); font-weight: 800; letter-spacing: -2.5px; line-height: 1; margin-bottom: 10px; }
   .cat-tagline { font-size: 16px; font-weight: 300; opacity: 0.7; padding-bottom: 44px; }
   .cat-header-img { height: 200px; flex-shrink: 0; display: flex; align-items: flex-end; }
   .cat-header-img img { height: 100%; width: auto; object-fit: contain; }
-
-  /* ── SUBCAT SECTION ── */
   .subcat-section { padding: 52px 0 16px; background: #f5f5f7; }
   .section-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: #1d1d1f; margin-bottom: 28px; }
   .section-title em { font-style: normal; color: #0071e3; }
-
-  /* ── CAROUSEL ── */
   .carousel-outer { display: flex; align-items: center; gap: 14px; }
   .carousel-viewport { flex: 1; overflow: hidden; }
-  .carousel-track {
-    display: flex;
-    gap: 20px;
-    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-    will-change: transform;
-  }
-
-  /* ── APPLE-STYLE CARD — matches reference image ── */
-  .sc-card {
-    flex: 0 0 400px;           /* wide card */
-    background: #ffffff;
-    border-radius: 18px;
-    overflow: hidden;
-    text-decoration: none;
-    color: #1d1d1f;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-  }
-
-  .sc-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-  }
-
-  /* Title at the top left */
-  .sc-top {
-    padding: 22px 24px 0;
-  }
-
-  .sc-name {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    line-height: 1.2;
-    color: #1d1d1f;
-  }
-
-  /* Image — takes up most of the card, 680×528 ratio = ~1.28:1 */
-  .sc-img-area {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px 24px;
-    min-height: 320px;   /* 340 / 1.28 ≈ 265 */
-    overflow: hidden;
-  }
-
-  .sc-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
+  .carousel-track { display: flex; gap: 20px; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
+  .sc-card { flex: 0 0 400px; background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; color: #1d1d1f; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.25s, box-shadow 0.25s; }
+  .sc-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+  .sc-top { padding: 22px 24px 0; }
+  .sc-name { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .sc-img-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 24px; min-height: 320px; overflow: hidden; }
+  .sc-img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s; }
   .sc-card:hover .sc-img { transform: scale(1.03); }
-
-  .sc-img-placeholder {
-    color: #c7c7cc;
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; height: 200px;
-  }
-
-  /* Button at the bottom left */
-  .sc-bottom {
-    padding: 0 24px 22px;
-  }
-
-  .sc-btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 9px 20px;
-    background: #0071e3;
-    color: white;
-    border-radius: 980px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.2s;
-  }
-
+  .sc-img-placeholder { color: #c7c7cc; }
+  .sc-bottom { padding: 0 24px 22px; }
+  .sc-btn { display: inline-flex; align-items: center; padding: 9px 20px; background: #0071e3; color: white; border-radius: 980px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
   .sc-card:hover .sc-btn { background: #0077ed; }
-
-  /* ── ARROWS ── */
-  .carousel-arrow {
-    flex-shrink: 0; width: 42px; height: 42px;
-    border-radius: 50%; border: 1px solid #d2d2d7;
-    background: white; cursor: pointer; color: #1d1d1f;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    transition: background 0.2s, box-shadow 0.2s;
-  }
-  .carousel-arrow:hover { background: #f0f0f0; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+  .carousel-arrow { flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 1px solid #d2d2d7; background: white; cursor: pointer; color: #1d1d1f; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: background 0.2s; }
+  .carousel-arrow:hover { background: #f0f0f0; }
   .carousel-arrow:disabled { opacity: 0.25; pointer-events: none; }
-
-  /* ── DOTS ── */
   .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 22px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; border: none; background: #d1d1d6; cursor: pointer; padding: 0; transition: background 0.2s, transform 0.2s; }
   .dot.active { background: #0071e3; transform: scale(1.35); }
-
-  /* ── PRODUCTS ── */
   .products-section { padding: 48px 0 80px; }
   .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-
-  @media (max-width: 768px) {
-    .sc-card { flex: 0 0 320px; }
-    .sc-img-area { min-height: 260px; }
-    .carousel-arrow { display: none; }
-  }
-  @media (max-width: 600px) {
-    .products-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
-    .cat-header-img { display: none; }
-  }
+  @media (max-width: 768px) { .sc-card { flex: 0 0 280px; } .carousel-arrow { display: none; } }
+  @media (max-width: 600px) { .products-grid { grid-template-columns: repeat(2,1fr); } .cat-header-img { display: none; } }
 </style>
 
 <script>
@@ -271,23 +142,18 @@ const subcatData = cat.subcategories.map(sub => ({
   const arrowLeft = document.getElementById("arrow-left") as HTMLButtonElement | null;
   const arrowRight = document.getElementById("arrow-right") as HTMLButtonElement | null;
   const dots = document.querySelectorAll<HTMLButtonElement>(".dot");
-
   if (track && viewport) {
     const cards = Array.from(track.querySelectorAll<HTMLElement>(".sc-card"));
-    const total = cards.length;
     let current = 0;
-
     function cardW() { return (cards[0]?.offsetWidth ?? 400) + 20; }
     function getVisible() { return Math.max(1, Math.floor(viewport!.offsetWidth / cardW())); }
-
     function goTo(idx: number) {
-      current = Math.max(0, Math.min(idx, total - getVisible()));
+      current = Math.max(0, Math.min(idx, cards.length - getVisible()));
       track!.style.transform = `translateX(-${current * cardW()}px)`;
       dots.forEach((d, i) => d.classList.toggle("active", i === current));
       if (arrowLeft) arrowLeft.disabled = current === 0;
-      if (arrowRight) arrowRight.disabled = current >= total - getVisible();
+      if (arrowRight) arrowRight.disabled = current >= cards.length - getVisible();
     }
-
     arrowLeft?.addEventListener("click", () => goTo(current - 1));
     arrowRight?.addEventListener("click", () => goTo(current + 1));
     dots.forEach((d, i) => d.addEventListener("click", () => goTo(i)));

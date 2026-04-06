@@ -7,9 +7,10 @@ import Reviews from "../components/Reviews.astro";
 import TrustBar from "../components/TrustBar.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
-import { categories } from "../data/products";
+import { getCategories, CATEGORY_CONFIG } from "../data/sheets";
 
-const smartphones = categories.find(c => c.id === "smartphones")!;
+const categories = getCategories();
+const smartphones = CATEGORY_CONFIG["SmartPhones"];
 const rest = categories.filter(c => c.id !== "smartphones");
 ---
 
