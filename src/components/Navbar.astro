@@ -1,47 +1,186 @@
 ---
-import { categories } from "../data/products";
+import { getCategories } from "../data/sheets";
+const categories = getCategories();
 ---
 
 <nav id="navbar">
   <div class="nav-inner">
     <a href="/" class="nav-logo">Ing.<span>Techh</span></a>
 
+    <!-- Desktop links -->
     <ul class="nav-links" id="nav-links">
-      <li><a href="/#smartphones">SmartPhones</a></li>
+      <li><a href="/categoria/smartphones">SmartPhones</a></li>
       {categories.filter(c => c.id !== "smartphones").map(cat => (
         <li><a href={`/categoria/${cat.id}`}>{cat.name}</a></li>
       ))}
     </ul>
+
+    <!-- Mobile hamburger button -->
+    <button class="hamburger" id="hamburger" aria-label="Menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-header">
+    <a href="/" class="mobile-logo">Ing.<span>Techh</span></a>
+    <button class="mobile-close" id="mobile-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <ul class="mobile-nav-links">
+    <li><a href="/categoria/smartphones">SmartPhones</a></li>
+    {categories.filter(c => c.id !== "smartphones").map(cat => (
+      <li><a href={`/categoria/${cat.id}`}>{cat.name}</a></li>
+    ))}
+  </ul>
+  <div class="mobile-menu-footer">
+    <a href="https://wa.me/5491127101318" class="mobile-wa" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.28 7.044L.786 23.214l4.284-1.374A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.019-1.378l-.36-.214-3.728 1.195 1.214-3.636-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+      </svg>
+      Consultar por WhatsApp
+    </a>
+  </div>
+</div>
+
+<!-- Overlay backdrop -->
+<div class="menu-backdrop" id="menu-backdrop"></div>
 
 <style>
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     height: var(--nav-h);
-    background: rgba(255,255,255,0.88);
+    background: rgba(255,255,255,0.92);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--border);
     transition: box-shadow var(--transition);
   }
   nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
+
   .nav-inner {
     width: 100%; max-width: 1280px; margin: 0 auto;
     height: 100%; display: flex; align-items: center; gap: 8px; padding: 0 24px;
   }
-  .nav-logo { font-size: 17px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 0; }
+
+  .nav-logo { font-size: 17px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 0; text-decoration: none; }
   .nav-logo span { color: var(--text-primary); }
-  .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; overflow-x: auto; scrollbar-width: none; flex: 1; justify-content: center; }
-  .nav-links::-webkit-scrollbar { display: none; }
+
+  /* Desktop links */
+  .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; flex: 1; justify-content: center; }
   .nav-links li a { display: block; padding: 5px 10px; font-size: 12.5px; font-weight: 400; color: var(--text-secondary); border-radius: 8px; white-space: nowrap; text-decoration: none; transition: background var(--transition), color var(--transition); }
-  .nav-links li a:hover, .nav-links li a.active { background: var(--brand-subtle); color: var(--brand); font-weight: 500; }
-  @media (max-width: 768px) { .nav-links { display: none; } }
+  .nav-links li a:hover { background: var(--brand-subtle); color: var(--brand); font-weight: 500; }
+
+  /* Hamburger button */
+  .hamburger {
+    display: none;
+    flex-direction: column; justify-content: center; align-items: center;
+    gap: 5px; width: 40px; height: 40px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+    border-radius: 8px; transition: background 0.2s;
+  }
+  .hamburger:hover { background: var(--brand-subtle); }
+  .hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--text-primary); border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mobile menu */
+  .mobile-menu {
+    position: fixed; top: 0; right: -100%; width: min(320px, 85vw);
+    height: 100dvh; background: white; z-index: 1100;
+    display: flex; flex-direction: column;
+    box-shadow: -4px 0 32px rgba(0,0,0,0.12);
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+  }
+  .mobile-menu.open { right: 0; }
+
+  .mobile-menu-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid #f0f0f0;
+    position: sticky; top: 0; background: white; z-index: 1;
+  }
+
+  .mobile-logo { font-size: 18px; font-weight: 800; color: var(--brand); text-decoration: none; letter-spacing: -0.5px; }
+  .mobile-logo span { color: var(--text-primary); }
+
+  .mobile-close { background: none; border: none; cursor: pointer; color: var(--text-primary); padding: 4px; border-radius: 8px; display: flex; align-items: center; }
+  .mobile-close:hover { background: #f5f5f7; }
+
+  .mobile-nav-links { list-style: none; padding: 12px 0; flex: 1; }
+  .mobile-nav-links li a {
+    display: block; padding: 14px 20px;
+    font-size: 16px; font-weight: 500; color: var(--text-primary);
+    text-decoration: none; border-bottom: 1px solid #f5f5f7;
+    transition: background 0.2s, color 0.2s;
+  }
+  .mobile-nav-links li a:hover { background: var(--brand-subtle); color: var(--brand); }
+
+  .mobile-menu-footer { padding: 20px; border-top: 1px solid #f0f0f0; }
+  .mobile-wa {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px 20px; background: #25d366; color: white;
+    border-radius: 980px; font-size: 14px; font-weight: 700;
+    text-decoration: none; transition: background 0.2s;
+  }
+  .mobile-wa:hover { background: #1ebe5d; }
+
+  /* Backdrop */
+  .menu-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 1050;
+    backdrop-filter: blur(2px);
+  }
+  .menu-backdrop.open { display: block; }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; margin-left: auto; }
+  }
 </style>
 
 <script>
   const nav = document.getElementById("navbar")!;
+  const hamburger = document.getElementById("hamburger")!;
+  const mobileMenu = document.getElementById("mobile-menu")!;
+  const mobileClose = document.getElementById("mobile-close")!;
+  const backdrop = document.getElementById("menu-backdrop")!;
+
   window.addEventListener("scroll", () => {
     nav.classList.toggle("scrolled", window.scrollY > 10);
   });
+
+  function openMenu() {
+    mobileMenu.classList.add("open");
+    backdrop.classList.add("open");
+    hamburger.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMenu() {
+    mobileMenu.classList.remove("open");
+    backdrop.classList.remove("open");
+    hamburger.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  hamburger.addEventListener("click", openMenu);
+  mobileClose.addEventListener("click", closeMenu);
+  backdrop.addEventListener("click", closeMenu);
+
+  // Close on link click
+  mobileMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
 </script>

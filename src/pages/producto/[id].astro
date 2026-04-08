@@ -181,5 +181,17 @@ const related = allProducts
   .related-info { padding: 12px 14px 14px; }
   .related-name { font-size: 12.5px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
   .related-price { font-size: 13px; font-weight: 700; color: #0071e3; }
-  @media (max-width: 900px) { .product-layout { grid-template-columns: 1fr; gap: 32px; } .related-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 900px) {
+    .product-layout { grid-template-columns: 1fr; gap: 24px; }
+    .related-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 600px) {
+    .page-wrap { padding: 20px 0 60px; }
+    .breadcrumb { padding: 0 16px; margin-bottom: 20px; }
+    .product-layout { padding: 0 16px; gap: 20px; }
+    .product-price { font-size: 26px; }
+    .product-name { font-size: 20px; }
+    .related-section { padding: 0 16px; padding-top: 36px; }
+    .related-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  }
 </style>

@@ -2,12 +2,10 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
-import ProductCard from "../../components/ProductCard.astro";
 import { fetchProducts, getCategories, getCatBySlug, toSlug, SUBCAT_IMAGES } from "../../data/sheets";
 
 const { catId } = Astro.params;
 const cat = getCatBySlug(catId!);
-
 if (!cat) return Astro.redirect("/");
 
 const allProducts = await fetchProducts();
@@ -21,11 +19,19 @@ const subcatData = cat.subcategories.map(sub => ({
   image: SUBCAT_IMAGES[sub] ?? null,
   count: catProducts.filter(p => p.subcategory === sub).length,
 }));
+
+// All products shown (root + all subcats combined for filter)
+const allCatProducts = catProducts;
+
+// Get unique tags for filter
+const allTags = [...new Set(allCatProducts.flatMap(p => p.tags).filter(Boolean))];
 ---
 
 <Layout title={`${cat.name} — Ing.Techh`}>
   <Navbar />
   <main>
+
+    <!-- HEADER -->
     <div class="cat-header" style={`background:${cat.color}; color:${cat.textColor}`}>
       <div class="container">
         <nav class="breadcrumb">
@@ -45,6 +51,7 @@ const subcatData = cat.subcategories.map(sub => ({
       </div>
     </div>
 
+    <!-- SUBCATEGORY CAROUSEL -->
     {hasSubcats && (
       <div class="subcat-section">
         <div class="container">
@@ -61,12 +68,10 @@ const subcatData = cat.subcategories.map(sub => ({
                     <div class="sc-img-area">
                       {sub.image
                         ? <img src={sub.image} alt={sub.name} class="sc-img" />
-                        : <div class="sc-img-placeholder"><svg viewBox="0 0 64 64" fill="none" width="56" height="56"><rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                        : <div class="sc-img-placeholder"><svg viewBox="0 0 64 64" fill="none" width="48" height="48"><rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/></svg></div>
                       }
                     </div>
-                    <div class="sc-bottom">
-                      <span class="sc-btn">Ver Productos</span>
-                    </div>
+                    <div class="sc-bottom"><span class="sc-btn">Ver Productos</span></div>
                   </a>
                 ))}
               </div>
@@ -84,12 +89,63 @@ const subcatData = cat.subcategories.map(sub => ({
       </div>
     )}
 
+    <!-- PRODUCTS WITH FILTER -->
     {rootProducts.length > 0 && (
       <div class="container products-section">
         {hasSubcats && <h2 class="section-title">Otros productos</h2>}
-        <div class="products-grid">
-          {rootProducts.map(p => <ProductCard product={p} />)}
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar" id="filter-bar">
+          <button class="filter-btn active" data-filter="all">Todos</button>
+          {allTags.map(tag => (
+            <button class="filter-btn" data-filter={tag}>{tag}</button>
+          ))}
         </div>
+
+        <!-- GRID -->
+        <div class="products-grid" id="products-grid">
+          {rootProducts.map((p, i) => (
+            <a
+              href={`/producto/${p.id}`}
+              class={`product-card ${i >= 8 ? 'hidden-product' : ''}`}
+              data-tags={p.tags.join(',')}
+            >
+              <div class="product-img-wrap">
+                {p.image
+                  ? <img src={p.image} alt={p.name} loading="lazy" />
+                  : <div class="product-img-placeholder">
+                      <svg viewBox="0 0 64 64" fill="none" width="48" height="48">
+                        <rect x="16" y="8" width="32" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="32" cy="48" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="26" y1="12" x2="38" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                    </div>
+                }
+                {p.tags.includes('OFERTA') && <span class="badge-oferta">Oferta</span>}
+              </div>
+              <div class="product-info">
+                {p.subcategory && <p class="product-sub">{p.subcategory}</p>}
+                <p class="product-name">{p.name}</p>
+                <p class="product-price">
+                  {p.price ? (p.currency === 'USD' ? `USD ${p.price.toLocaleString('es-AR')}` : `$ ${p.price.toLocaleString('es-AR')}`) : 'Consultar precio'}
+                </p>
+                <span class="product-cta">Ver producto</span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <!-- VER MÁS BUTTON -->
+        {rootProducts.length > 8 && (
+          <div class="ver-mas-wrap" id="ver-mas-wrap">
+            <button class="ver-mas-btn" id="ver-mas-btn">
+              Ver más productos
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     )}
 
@@ -99,6 +155,8 @@ const subcatData = cat.subcategories.map(sub => ({
 
 <style>
   main { padding-top: var(--nav-h); }
+
+  /* HEADER */
   .cat-header { padding: 52px 0 0; overflow: hidden; }
   .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.6; margin-bottom: 24px; }
   .breadcrumb a { text-decoration: none; color: inherit; }
@@ -107,9 +165,13 @@ const subcatData = cat.subcategories.map(sub => ({
   .cat-tagline { font-size: 16px; font-weight: 300; opacity: 0.7; padding-bottom: 44px; }
   .cat-header-img { height: 200px; flex-shrink: 0; display: flex; align-items: flex-end; }
   .cat-header-img img { height: 100%; width: auto; object-fit: contain; }
+
+  /* SUBCAT SECTION */
   .subcat-section { padding: 52px 0 16px; background: #f5f5f7; }
   .section-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: #1d1d1f; margin-bottom: 28px; }
   .section-title em { font-style: normal; color: #0071e3; }
+
+  /* CAROUSEL */
   .carousel-outer { display: flex; align-items: center; gap: 14px; }
   .carousel-viewport { flex: 1; overflow: hidden; }
   .carousel-track { display: flex; gap: 20px; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
@@ -122,7 +184,7 @@ const subcatData = cat.subcategories.map(sub => ({
   .sc-card:hover .sc-img { transform: scale(1.03); }
   .sc-img-placeholder { color: #c7c7cc; }
   .sc-bottom { padding: 0 24px 22px; }
-  .sc-btn { display: inline-flex; align-items: center; padding: 9px 20px; background: #0071e3; color: white; border-radius: 980px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+  .sc-btn { display: inline-flex; align-items: center; padding: 9px 20px; background: #0071e3; color: white; border-radius: 980px; font-size: 14px; font-weight: 600; }
   .sc-card:hover .sc-btn { background: #0077ed; }
   .carousel-arrow { flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 1px solid #d2d2d7; background: white; cursor: pointer; color: #1d1d1f; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: background 0.2s; }
   .carousel-arrow:hover { background: #f0f0f0; }
@@ -130,18 +192,111 @@ const subcatData = cat.subcategories.map(sub => ({
   .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 22px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; border: none; background: #d1d1d6; cursor: pointer; padding: 0; transition: background 0.2s, transform 0.2s; }
   .dot.active { background: #0071e3; transform: scale(1.35); }
+
+  /* FILTER BAR */
   .products-section { padding: 48px 0 80px; }
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-  @media (max-width: 768px) { .sc-card { flex: 0 0 280px; } .carousel-arrow { display: none; } }
-  @media (max-width: 600px) { .products-grid { grid-template-columns: repeat(2,1fr); } .cat-header-img { display: none; } }
+  .filter-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .filter-btn {
+    padding: 7px 16px;
+    border: 1.5px solid #e5e5ea;
+    background: white; color: #1d1d1f;
+    border-radius: 980px; font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: #0071e3; color: #0071e3; }
+  .filter-btn.active { background: #0071e3; color: white; border-color: #0071e3; }
+
+  /* PRODUCTS GRID — 4 columns */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  /* PRODUCT CARD — Apple style like reference image */
+  .product-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #1d1d1f;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.10); }
+  .product-card.hidden-product { display: none; }
+
+  .product-img-wrap {
+    background: #f5f5f7;
+    aspect-ratio: 4/3;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+  .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+  .product-img-placeholder { color: #c7c7cc; }
+
+  .badge-oferta {
+    position: absolute; top: 10px; left: 10px;
+    background: #ef4444; color: white;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px; letter-spacing: 0.05em;
+  }
+
+  .product-info { padding: 14px 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .product-sub { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.8px; }
+  .product-name { font-size: 13.5px; font-weight: 500; line-height: 1.4; color: #1d1d1f; flex: 1; }
+  .product-price { font-size: 15px; font-weight: 700; color: #0071e3; margin-top: 4px; }
+  .product-cta {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 10px; padding: 8px 16px;
+    background: #0071e3; color: white;
+    border-radius: 980px; font-size: 12.5px; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .product-card:hover .product-cta { background: #0077ed; }
+
+  /* VER MÁS */
+  .ver-mas-wrap { display: flex; justify-content: center; margin-top: 32px; }
+  .ver-mas-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 32px; background: white;
+    border: 1.5px solid #0071e3; color: #0071e3;
+    border-radius: 980px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .ver-mas-btn:hover { background: #0071e3; color: white; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width: 768px) {
+    .sc-card { flex: 0 0 280px; }
+    .sc-img-area { min-height: 220px; }
+    .carousel-arrow { display: none; }
+    .cat-header-img { display: none; }
+  }
+  @media (max-width: 600px) {
+    .products-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+    .product-info { padding: 10px 12px 14px; }
+    .product-name { font-size: 12.5px; }
+    .product-price { font-size: 13.5px; }
+  }
 </style>
 
 <script>
+  // ── CAROUSEL ──────────────────────────────────────────────
   const track = document.getElementById("carousel-track");
   const viewport = document.getElementById("carousel-viewport");
   const arrowLeft = document.getElementById("arrow-left") as HTMLButtonElement | null;
   const arrowRight = document.getElementById("arrow-right") as HTMLButtonElement | null;
   const dots = document.querySelectorAll<HTMLButtonElement>(".dot");
+
   if (track && viewport) {
     const cards = Array.from(track.querySelectorAll<HTMLElement>(".sc-card"));
     let current = 0;
@@ -157,6 +312,76 @@ const subcatData = cat.subcategories.map(sub => ({
     arrowLeft?.addEventListener("click", () => goTo(current - 1));
     arrowRight?.addEventListener("click", () => goTo(current + 1));
     dots.forEach((d, i) => d.addEventListener("click", () => goTo(i)));
+    // Touch swipe
+    let touchStartX = 0;
+    viewport.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+    viewport.addEventListener("touchend", e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) diff > 0 ? goTo(current + 1) : goTo(current - 1);
+    }, { passive: true });
     goTo(0);
   }
+
+  // ── FILTER ────────────────────────────────────────────────
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+  const productCards = document.querySelectorAll<HTMLElement>(".product-card");
+  const verMasWrap = document.getElementById("ver-mas-wrap");
+  const verMasBtn = document.getElementById("ver-mas-btn");
+
+  let showAll = false;
+  let activeFilter = "all";
+
+  function applyFilter(filter: string) {
+    activeFilter = filter;
+    showAll = false;
+    let visible = 0;
+
+    productCards.forEach(card => {
+      const tags = card.dataset.tags ?? "";
+      const matches = filter === "all" || tags.split(",").includes(filter);
+      if (matches) {
+        visible++;
+        if (visible <= 8) {
+          card.style.display = "";
+          card.classList.remove("hidden-product");
+        } else {
+          card.style.display = "none";
+          card.classList.add("hidden-product");
+        }
+      } else {
+        card.style.display = "none";
+        card.classList.add("hidden-product");
+      }
+    });
+
+    if (verMasWrap) {
+      verMasWrap.style.display = visible > 8 ? "flex" : "none";
+    }
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      applyFilter(btn.dataset.filter ?? "all");
+    });
+  });
+
+  verMasBtn?.addEventListener("click", () => {
+    // Show all matching cards
+    let count = 0;
+    productCards.forEach(card => {
+      const tags = card.dataset.tags ?? "";
+      const matches = activeFilter === "all" || tags.split(",").includes(activeFilter);
+      if (matches) {
+        card.style.display = "";
+        card.classList.remove("hidden-product");
+        count++;
+      }
+    });
+    if (verMasWrap) verMasWrap.style.display = "none";
+  });
+
+  // Init: hide products beyond 8
+  applyFilter("all");
 </script>
