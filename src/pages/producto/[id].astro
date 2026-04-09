@@ -63,11 +63,7 @@ const related = allProducts
             {product.currency === "USD" && (
               <p class="product-price-note">Precio en dólares · Consultá cotización del día</p>
             )}
-            <p class="product-price-note">
-              <a href={`https://wa.me/5491127101318?text=${waText}`} class="cuotas-link" target="_blank">
-                Cuotas disponibles · consultá medios de pago
-              </a>
-            </p>
+            <p class="product-price-note">Cuotas disponibles · consultá medios de pago</p>
           </div>
 
           <div class="product-specs">
@@ -158,7 +154,6 @@ const related = allProducts
   .product-price-block { margin-bottom: 28px; }
   .product-price { font-size: 32px; font-weight: 800; color: #0071e3; letter-spacing: -1px; margin-bottom: 6px; }
   .product-price-note { font-size: 13px; color: #6e6e73; margin-top: 4px; }
-  .cuotas-link { color: #0071e3; text-decoration: underline; }
   .product-specs { border: 1px solid #e5e5ea; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .spec-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; gap: 16px; }
   .spec-row:last-child { border-bottom: none; }

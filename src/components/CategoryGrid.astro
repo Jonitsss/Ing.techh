@@ -79,10 +79,9 @@ for (let i = 0; i < rest.length; i += 2) {
     text-decoration: none;
     color: #1d1d1f;
     overflow: hidden;
-    transition: filter 0.25s;
   }
 
-  .band:hover { filter: brightness(0.96); }
+
 
   .band-inner {
     display: flex;
@@ -172,14 +171,7 @@ for (let i = 0; i < rest.length; i += 2) {
     .band-half { min-height: 340px; }
     .band-full { min-height: 380px; }
   }
-
-  @keyframes floatImg {
-    0%, 100% { transform: translateY(0px); }
     50%       { transform: translateY(-10px); }
-  }
-
-  .band-img img {
-    animation: floatImg 4s ease-in-out infinite;
   }
 
 </style>
